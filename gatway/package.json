@@ -8,6 +8,8 @@
     "src/main/webapp/bower_components"
   ],
   "devDependencies": {
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react": "^6.16.0",
     "bower": "1.7.9",
     "browser-sync": "2.15.0",
     "del": "2.2.2",
@@ -62,5 +64,12 @@
   },
   "scripts": {
     "test": "gulp test"
+  },
+  "dependencies": {
+    "babel-core": "^6.18.0",
+    "babel-loader": "^6.2.7",
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "webpack": "^1.13.3"
   }
 }
