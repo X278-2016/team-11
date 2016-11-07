@@ -6292,7 +6292,7 @@
 	        return React.createElement(
 	            'div',
 	            null,
-	            React.createElement(_sample2.default, { name: 'Master', commitData: this.props.commit })
+	            React.createElement(_sample2.default, { name: 'My', commitData: this.props.commit })
 	        );
 	    }
 	});
