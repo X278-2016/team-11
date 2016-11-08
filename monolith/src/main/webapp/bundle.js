@@ -69,54 +69,48 @@
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+					value: true
 	});
 	var Sample = React.createClass({
-		displayName: "Sample",
-		render: function render() {
-			if (this.props.commitData == undefined) {
-				return React.createElement(
-					"div",
-					null,
-					"Loading"
-				);
-			} else {
-				var commit_list = [];
-				for (var ii = 0; ii < this.props.commitData.length; ii++) {
-					commit_list.push(React.createElement(
-						"li",
-						{ key: ii },
-						this.props.commitData[ii].commit.message
-					));
-				}
-				return React.createElement(
-					"div",
-					{ className: "col-md-6" },
-					React.createElement(
-						"div",
-						{ className: "panel panel-default" },
-						React.createElement(
-							"div",
-							{ className: "panel-heading" },
-							React.createElement(
-								"h3",
-								{ className: "panel-title" },
-								this.props.name + " Commits"
-							)
-						),
-						React.createElement(
-							"div",
-							{ className: "panel-body" },
-							React.createElement(
-								"ul",
-								null,
-								commit_list
-							)
-						)
-					)
-				);
-			}
-		}
+					displayName: "Sample",
+					render: function render() {
+									if (this.props.user == undefined) {
+													return React.createElement(
+																	"div",
+																	null,
+																	"Loading"
+													);
+									} else {
+													//var commit_list = [];
+													/*for(var ii = 0; ii<this.props.commitData.length; ii++){
+	                commit_list.push(<li key={ii}>
+	                    {this.props.commitData[ii].commit.message}
+	                </li>)
+	            }*/
+													return React.createElement(
+																	"div",
+																	{ className: "col-md-6" },
+																	React.createElement(
+																					"div",
+																					{ className: "panel panel-default" },
+																					React.createElement(
+																									"div",
+																									{ className: "panel-heading" },
+																									React.createElement(
+																													"h3",
+																													{ className: "panel-title" },
+																													"User Name"
+																									)
+																					),
+																					React.createElement(
+																									"div",
+																									{ className: "panel-body" },
+																									this.props.user.firstName + " " + this.props.user.lastName
+																					)
+																	)
+													);
+									}
+					}
 	});
 	
 	exports.default = Sample;
@@ -6212,13 +6206,14 @@
 	
 	var _actions = __webpack_require__(/*! ./actions */ 64);
 	
-	function getCommits() {
+	function getCurrentUser() {
 	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 	    var action = arguments[1];
 	
 	    switch (action.type) {
-	        case _actions.GET_COMMITS:
-	            return Object.assign({}, state, { myData: action.data });
+	        case _actions.GET_CURRENT_USER:
+	            return Object.assign({}, state, action.data);
+	        //return Object.assign({}, state, {myData: action.data});
 	        default:
 	            return state;
 	    }
@@ -6226,7 +6221,7 @@
 	
 	//api call and api call to initially fetch
 	var mainPage = (0, _redux.combineReducers)({
-	    getCommits: getCommits //,other things
+	    getCurrentUser: getCurrentUser //,other things
 	});
 	
 	exports.default = mainPage;
@@ -6243,20 +6238,21 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.fetchCommitData = fetchCommitData;
+	exports.fetchCurrentUser = fetchCurrentUser;
 	exports.getDataUpdater = getDataUpdater;
-	var GET_COMMITS = exports.GET_COMMITS = 'GET_COMMITS';
+	var GET_CURRENT_USER = exports.GET_CURRENT_USER = 'GET_CURRENT_USER';
 	
-	function fetchCommitData() {
+	function fetchCurrentUser() {
 	    return function (dispatch) {
-	        return $.get('https://api.github.com/repos/X278-2016/team-11/commits?sha=daily/sam_hurd', function (result) {
+	        return $.get('/api/account', function (result) {
+	            console.log(result);
 	            dispatch(getDataUpdater(result));
 	        }.bind(this));
 	    };
 	}
 	
 	function getDataUpdater(data) {
-	    return { type: GET_COMMITS, data: data };
+	    return { type: GET_CURRENT_USER, data: data };
 	}
 
 /***/ },
@@ -6286,13 +6282,13 @@
 	    displayName: 'MainPage',
 	
 	    componentDidMount: function componentDidMount() {
-	        this.props.fetchCommitData();
+	        this.props.fetchCurrentUser();
 	    },
 	    render: function render() {
 	        return React.createElement(
 	            'div',
 	            null,
-	            React.createElement(_sample2.default, { name: 'My', commitData: this.props.commit })
+	            React.createElement(_sample2.default, { user: this.props.user })
 	        );
 	    }
 	});
@@ -6300,29 +6296,16 @@
 	var mapStateToProps = function mapStateToProps(state) {
 	    //updateCompany
 	    return {
-	        commit: state.getCommits.myData
+	        user: state.getCurrentUser
 	    };
 	};
 	
 	//in this method, call the action method
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	    return {
-	        fetchCommitData: function fetchCommitData() {
-	            dispatch((0, _actions.fetchCommitData)());
-	        },
-	        fetchSamCommits: function (_fetchSamCommits) {
-	            function fetchSamCommits() {
-	                return _fetchSamCommits.apply(this, arguments);
-	            }
-	
-	            fetchSamCommits.toString = function () {
-	                return _fetchSamCommits.toString();
-	            };
-	
-	            return fetchSamCommits;
-	        }(function () {
-	            dispatch(fetchSamCommits());
-	        })
+	        fetchCurrentUser: function fetchCurrentUser() {
+	            dispatch((0, _actions.fetchCurrentUser)());
+	        }
 	    };
 	};
 	

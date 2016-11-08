@@ -1,14 +1,14 @@
 import { connect } from 'react-redux'
-import { fetchCommitData } from '../actions'
+import { fetchCurrentUser } from '../actions'
 import Sample from './sample'
 
 var MainPage = React.createClass({
     componentDidMount: function(){
-        this.props.fetchCommitData();
+        this.props.fetchCurrentUser();
     },
     render: function() {
         return(<div>
-            <Sample name="My" commitData={this.props.commit}/>
+            <Sample user={this.props.user}/>
             </div>);
     }
 });
@@ -16,18 +16,15 @@ var MainPage = React.createClass({
 const mapStateToProps = (state) => {
     //updateCompany
     return {
-        commit: state.getCommits.myData
+        user: state.getCurrentUser
     };
 };
 
 //in this method, call the action method
 const mapDispatchToProps = (dispatch) => {
     return {
-        fetchCommitData:() => {
-            dispatch(fetchCommitData());
-        },
-        fetchSamCommits: () => {
-        	dispatch(fetchSamCommits());
+        fetchCurrentUser:() => {
+            dispatch(fetchCurrentUser());
         }
     }
 };

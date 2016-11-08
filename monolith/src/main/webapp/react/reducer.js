@@ -1,10 +1,11 @@
 import { combineReducers } from 'redux'
-import {GET_COMMITS} from './actions'
+import {GET_CURRENT_USER} from './actions'
 
-function getCommits(state = [], action) {
+function getCurrentUser(state = [], action) {
     switch (action.type) {
-        case GET_COMMITS:
-            return Object.assign({}, state, {myData: action.data});
+        case GET_CURRENT_USER:
+        	return Object.assign({}, state, action.data);
+            //return Object.assign({}, state, {myData: action.data});
         default:
             return state
     }
@@ -12,7 +13,7 @@ function getCommits(state = [], action) {
 
 //api call and api call to initially fetch
 const mainPage = combineReducers({
-    getCommits//,other things
+    getCurrentUser//,other things
 });
 
 export default mainPage

@@ -1,25 +1,23 @@
 var Sample = React.createClass ({
 
     render() {
-    	if(this.props.commitData == undefined){
+    	if(this.props.user == undefined){
             return(<div>Loading</div>)
         } else {
-            var commit_list = [];
-	        for(var ii = 0; ii<this.props.commitData.length; ii++){
+            //var commit_list = [];
+	        /*for(var ii = 0; ii<this.props.commitData.length; ii++){
 	            commit_list.push(<li key={ii}>
 	                {this.props.commitData[ii].commit.message}
 	            </li>)
-	        }
+	        }*/
 	        return (
 	        <div className="col-md-6">
 				<div className="panel panel-default">
 				  <div className="panel-heading">
-				    <h3 className="panel-title">{this.props.name+" Commits"}</h3>
+				    <h3 className="panel-title">User Name</h3>
 				  </div>
 				  <div className="panel-body">
-					  <ul>
-					  	{commit_list}
-					  </ul>
+					  	{this.props.user.firstName+" "+this.props.user.lastName}
 				  </div>
 				</div>
 			</div>

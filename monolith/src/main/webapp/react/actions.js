@@ -1,8 +1,9 @@
-export const GET_COMMITS = 'GET_COMMITS';
+export const GET_CURRENT_USER = 'GET_CURRENT_USER';
 
-export function fetchCommitData(){
+export function fetchCurrentUser(){
     return function (dispatch){
-        return $.get('https://api.github.com/repos/X278-2016/team-11/commits?sha=daily/sam_hurd', function(result){
+        return $.get('/api/account', function(result){
+        	console.log(result);
             dispatch(getDataUpdater(result))
         }.bind(this));
     }
@@ -10,5 +11,5 @@ export function fetchCommitData(){
 
 
 export function getDataUpdater(data){
-    return { type:GET_COMMITS, data }
+    return { type:GET_CURRENT_USER, data }
 }
