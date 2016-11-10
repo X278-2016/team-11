@@ -22,5 +22,8 @@ Commands:
 
 `python manage.py migrate`
 
-
 `python manage.py runserver`
+
+## Running the Spring Server
+
+Run the command `./gradlew build && java -jar build/libs/gs-spring-boot-0.1.0.jar`
