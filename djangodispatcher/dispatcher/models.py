@@ -11,3 +11,5 @@ class Task(models.Model):
     name = models.CharField(max_length=50, default="name")
     date = models.DateTimeField(default=datetime.datetime.now())
     # priority
+
+# class Profession()

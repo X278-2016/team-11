@@ -5,6 +5,7 @@ from django.contrib.auth import logout, authenticate, login
 from .forms import LoginForm
 from .models import Task
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
 @login_required
@@ -33,10 +34,13 @@ def create_task(request):
     task = Task.objects.create(worker=request.user, name=name)
     return JsonResponse({'workerUsername': task.worker.username, 'workerId': task.worker.pk, 'name': task.name,
                          'date': task.date})
-
+@csrf_exempt
 def delegate(request):
-    name = request.GET.get('name', 'default name')
-    id = request.GET.get('id', '1')
+    name = request.POST.get('name', 'default name')
+    id = request.POST.get('id', '1')
+    # number of tasks
+    # location
+    # skills
     try:
         user = User.objects.get(pk=int(id))
     except User.DoesNotExist:
