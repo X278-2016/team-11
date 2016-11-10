@@ -12,7 +12,7 @@ On the dashboard.html webpage, the current User's tasks should be displayed. To 
 
 ## Running the Django application
 
-First, run `npm install && bower install` to make sure all dependencies are included. Next, navigate into the "djangodispatcher" service. Once here, run `"./node_modules/.bin/webpack" -d`. This command will look inside the "index.js" and "webpack.config.js" files and compile the react code appropriately. This command should be run each time react code is edited. After that, run `python manage.py makemigrations dispatcher`. This prepares the database migrations for the dispatcher application based on the models. After the migrations have been prepared, run `python manage.py migrate`. These commands should be run each time a model is updated to create the necessary database table changes. Finally, run `python manage.py runserver`.
+First, run `npm install && bower install` to make sure all dependencies are included. Next, navigate into the "djangodispatcher" service. Once here, run `"./node_modules/.bin/webpack" -d`. This command will look inside the "index.js" and "webpack.config.js" files and compile the react code appropriately. This command should be run each time react code is edited. After that, run `python manage.py makemigrations dispatcher`. This prepares the database migrations for the dispatcher application based on the models. After the migrations have been prepared, run `python manage.py migrate`. These commands should be run each time a model is updated to create the necessary database table changes. Finally, run `python manage.py runserver`. To create a user initially, run `python manage.py createsuperuser`
 
 Commands:
 
