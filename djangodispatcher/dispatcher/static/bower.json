@@ -1,0 +1,21 @@
+{
+  "name": "static",
+  "homepage": "https://github.com/X278-2016/team-11",
+  "authors": [
+    "Sam Hurd <sam.p.hurd@vanderbilt.edu>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.7"
+  }
+}
