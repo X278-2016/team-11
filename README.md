@@ -9,3 +9,18 @@ Inside the "web.rest" package there should be a `TaskResource.java` class. This 
 ## Displaying Data
 
 On the dashboard.html webpage, the current User's tasks should be displayed. To retrieve these Tasks, a new endpoint should be added to the `TaskResource.java` file that accepts a User id as a parameter and returns a list of Tasks.
+
+## Running the Django application
+
+First, run `npm install && bower install` to make sure all dependencies are included. Next, navigate into the "djangodispatcher" service. Once here, run `"./node_modules/.bin/webpack" -d`. This command will look inside the "index.js" and "webpack.config.js" files and compile the react code appropriately. This command should be run each time react code is edited. After that, run `python manage.py makemigrations dispatcher`. This prepares the database migrations for the dispatcher application based on the models. After the migrations have been prepared, run `python manage.py migrate`. These commands should be run each time a model is updated to create the necessary database table changes. Finally, run `python manage.py runserver`.
+
+Commands:
+
+`"./node_modules/.bin/webpack" -d`
+
+`python manage.py makemigrations dispatcher`
+
+`python manage.py migrate`
+
+
+`python manage.py runserver`
