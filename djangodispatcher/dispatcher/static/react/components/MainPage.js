@@ -1,5 +1,6 @@
 import { connect } from 'react-redux'
-import { fetchCurrentUser, fetchCurrentUserTasks, fetchCompletedUserTasks } from '../actions'
+import { fetchCurrentUser, fetchCurrentUserTasks, fetchCompletedUserTasks,
+ completeTask} from '../actions'
 import Sample from './sample'
 
 var MainPage = React.createClass({
@@ -12,7 +13,7 @@ var MainPage = React.createClass({
         return(<div>
                 <h1 className="text-center">{this.props.user.firstName+" "+this.props.user.lastName}</h1>
                 <div className="col-md-6">
-                    <Sample tasks={this.props.user.active_tasks} type="Active"/>
+                    <Sample tasks={this.props.user.active_tasks} type="Active" completeTask={this.props.completeTask}/>
                 </div>
                 <div className="col-md-6">
                     <Sample tasks={this.props.user.completed_tasks} type="Completed"/>
@@ -42,6 +43,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         fetchCompletedUserTasks:() => {
             dispatch(fetchCompletedUserTasks());
+        },
+        completeTask:(data)=>{
+            dispatch(completeTask(data));
         }
     }
 };

@@ -1,16 +1,30 @@
 var Sample = React.createClass ({
-
-    render() {
+	completeTask: function(evt) {
+            var data = {
+                taskId: this.props.tasks[evt.target.id].taskId,
+            };
+            this.props.completeTask(data);
+    },
+    render: function() {
     	if(this.props.tasks == undefined){
             return(<div>Loading</div>)
         } else {
         	var task_list = [];
         	if(this.props.tasks != undefined){
-				for(var ii = 0; ii<this.props.tasks.length; ii++){
-					task_list.push(<li key={ii}>
-						{this.props.tasks[ii].name+" "+this.props.tasks[ii].date}
-					</li>)
-				}
+        		if(this.props.type=="Active"){
+        			for(var ii = 0; ii<this.props.tasks.length; ii++){
+						task_list.push(<div className="list-group-item" key={ii}>
+							<button className="btn btn-success" onClick={this.completeTask} id={ii}>complete</button>
+							{this.props.tasks[ii].name+" "+this.props.tasks[ii].date}
+						</div>)
+					}
+        		} else {
+        			for(var ii = 0; ii<this.props.tasks.length; ii++){
+						task_list.push(<div className="list-group-item" key={ii}>
+							{this.props.tasks[ii].name+" "+this.props.tasks[ii].date}
+						</div>)
+					}
+        		}
 	        }
 	        return (
 				<div className="panel panel-default">
@@ -18,9 +32,9 @@ var Sample = React.createClass ({
 				    <h3 className="panel-title">{this.props.type} Tasks</h3>
 				  </div>
 				  <div className="panel-body">
-					  	<ul>
-						{task_list}
-					  	</ul>
+				  		<div class="list-group">
+						   {task_list}
+						</div>
 				  </div>
 				</div>
 	        );

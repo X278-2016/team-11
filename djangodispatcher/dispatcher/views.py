@@ -23,19 +23,35 @@ def get_current_user(request):
 def get_active_user_tasks(request):
     user = Profile.objects.get(user=request.user)
     mytask = []
-    tasks = Task.objects.filter(worker=user, active=True)
-    for task in tasks:
-        mytask.append({'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
+    for task in Task.objects.filter(worker=user, active=True):
+        mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
     return JsonResponse({'active_tasks': mytask})
 
 @login_required
 def get_completed_user_tasks(request):
     user = Profile.objects.get(user=request.user)
     mytask = []
-    tasks = Task.objects.filter(worker=user, active=False)
-    for task in tasks:
-        mytask.append({'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
+    for task in Task.objects.filter(worker=user, active=False):
+        mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
     return JsonResponse({'completed_tasks': mytask})
+
+@login_required
+def complete_task(request):
+    task_id = request.POST.get('taskId', -1)
+    try:
+        task = Task.objects.get(pk=task_id)
+        task.active = False
+        task.save()
+        user = Profile.objects.get(user=request.user)
+        completedtask = []
+        for task in Task.objects.filter(worker=user, active=False):
+            completedtask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
+        activetask = []
+        for task in Task.objects.filter(worker=user, active=True):
+            activetask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
+        return JsonResponse({'completed_tasks': completedtask, 'active_tasks': activetask})
+    except Task.DoesNotExist:
+        return JsonResponse({"result": "error"})
 
 @csrf_exempt
 def delegate(request):
@@ -57,18 +73,6 @@ def delegate(request):
     task = Task.objects.create(worker=correct_user, name=name)
     return JsonResponse({"result": "success", 'workerUsername': task.worker.username, 'workerId': task.worker.pk,
                          'name': task.name, 'date': task.date, 'taskId': task.pk})
-
-
-@login_required
-def complete_task(request, task_id):
-    try:
-        task = Task.objects.get(pk=task_id)
-        task.active = False
-        task.save()
-        return JsonResponse({"result": "success", 'workerUsername': task.worker.username, 'workerId': task.worker.pk,
-                             'name': task.name, 'date': task.date, 'taskId': task.pk})
-    except Task.DoesNotExist:
-        return JsonResponse({"result": "error"})
 
 def logout_view(request):
     logout(request)
