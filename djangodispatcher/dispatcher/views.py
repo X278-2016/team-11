@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.contrib.auth import logout, authenticate, login
 from .forms import LoginForm
-from .models import Task
+from .models import Task, Profile
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
@@ -20,37 +20,55 @@ def get_current_user(request):
                          'email': user.email, 'id': user.pk})
 
 @login_required
-def get_user_tasks(request):
-    user = request.user
+def get_active_user_tasks(request):
+    user = Profile.objects.get(user=request.user)
     mytask = []
-    tasks = Task.objects.filter(worker=user)
+    tasks = Task.objects.filter(worker=user, active=True)
     for task in tasks:
         mytask.append({'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
-    return JsonResponse({'tasks': mytask})
+    return JsonResponse({'active_tasks': mytask})
 
 @login_required
-def create_task(request):
-    name = request.GET.get('name', 'default name')
-    task = Task.objects.create(worker=request.user, name=name)
-    return JsonResponse({'workerUsername': task.worker.username, 'workerId': task.worker.pk, 'name': task.name,
-                         'date': task.date})
+def get_completed_user_tasks(request):
+    user = Profile.objects.get(user=request.user)
+    mytask = []
+    tasks = Task.objects.filter(worker=user, active=False)
+    for task in tasks:
+        mytask.append({'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
+    return JsonResponse({'completed_tasks': mytask})
+
 @csrf_exempt
 def delegate(request):
+    # retrieve post data
     name = request.POST.get('name', 'default name')
-    id = request.POST.get('id', '1')
-    # number of tasks
-    # location
-    # skills
-    try:
-        user = User.objects.get(pk=int(id))
-    except User.DoesNotExist:
+    city = request.POST.get('city', 'Nashville')
+    job = request.POST.get('job', 'electrical')
+    correct_user = None
+    smallest = -1
+    # query for ones that match job description
+    # include location query
+    # choose based on who has the least amount
+    for user in Profile.objects.filter(location__city=city, profession_title=job):
+        # find the qualified user with the least number of tasks queued
+        if smallest == -1 or len(user.task_set.filter(active=True)) < smallest:
+            correct_user = user
+    if correct_user is None:
         return JsonResponse({"result": "error"})
-    except ValueError:
-        return JsonResponse({"result": "error"})
-    task = Task.objects.create(worker=user, name=name)
+    task = Task.objects.create(worker=correct_user, name=name)
     return JsonResponse({"result": "success", 'workerUsername': task.worker.username, 'workerId': task.worker.pk,
-                         'name': task.name, 'date': task.date})
+                         'name': task.name, 'date': task.date, 'taskId': task.pk})
 
+
+@login_required
+def complete_task(request, task_id):
+    try:
+        task = Task.objects.get(pk=task_id)
+        task.active = False
+        task.save()
+        return JsonResponse({"result": "success", 'workerUsername': task.worker.username, 'workerId': task.worker.pk,
+                             'name': task.name, 'date': task.date, 'taskId': task.pk})
+    except Task.DoesNotExist:
+        return JsonResponse({"result": "error"})
 
 def logout_view(request):
     logout(request)
