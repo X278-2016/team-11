@@ -40,9 +40,14 @@ class Profile(models.Model):
 
 class Task(models.Model):
     worker = models.ForeignKey(Profile)
-    name = models.CharField(max_length=50, default="name")
+    sensor = models.ForeignKey("Sensor", blank=True, null=True)
+    job = models.ForeignKey(Job, blank=True, null=True)
     date = models.DateTimeField(default=datetime.datetime.now())
     active = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name
+
+class Sensor(models.Model):
+    sensorId = models.CharField(max_length=50, default="0", unique=True)
+    location = models.ForeignKey(Location)

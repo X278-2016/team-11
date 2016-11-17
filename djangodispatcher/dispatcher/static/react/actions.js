@@ -1,4 +1,5 @@
 export const GET_CURRENT_USER = 'GET_CURRENT_USER';
+export const GET_OPERATOR_DATA = 'GET_OPERATOR_DATA';
 
 export function fetchCurrentUser(){
     return function (dispatch){
@@ -24,6 +25,18 @@ export function fetchCompletedUserTasks(){
     return function (dispatch){
         return $.get('/api/completedtasks', function(result){
             dispatch(getDataUpdater(result))
+        }.bind(this));
+    }
+}
+
+export function getOperatorUpdater(data){
+    return { type:GET_OPERATOR_DATA, data }
+}
+
+export function fetchAllUsers(){
+    return function (dispatch){
+        return $.get('/api/allusers', function(result){
+            dispatch(getOperatorUpdater(result))
         }.bind(this));
     }
 }

@@ -27,7 +27,7 @@ def get_current_user(request):
 def get_active_user_tasks(request):
     user = Profile.objects.get(user=request.user)
     mytask = []
-    for task in Task.objects.filter(worker=user, active=True):
+    for task in Task.objects.filter(worker=user, active=True).order_by("-date"):
         mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
     return JsonResponse({'active_tasks': mytask})
 
@@ -36,7 +36,7 @@ def get_active_user_tasks(request):
 def get_completed_user_tasks(request):
     user = Profile.objects.get(user=request.user)
     mytask = []
-    for task in Task.objects.filter(worker=user, active=False):
+    for task in Task.objects.filter(worker=user, active=False).order_by("-date"):
         mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
     return JsonResponse({'completed_tasks': mytask})
 
@@ -79,7 +79,22 @@ def delegate(request):
         return JsonResponse({"result": "error"})
     task = Task.objects.create(worker=correct_user, name=name)
     return JsonResponse({"result": "success", 'workerUsername': task.worker.username, 'workerId': task.worker.pk,
-                         'name': task.name, 'date': task.date, 'taskId': task.pk})
+                         'name': task.job.title, 'date': task.date, 'taskId': task.pk})
+
+
+# operator APIs
+@login_required
+def get_all_workers(request):
+    userlist = []
+    for user in Profile.objects.filter(admin=False):
+        tasklist = []
+        for task in Task.objects.filter(worker=user, active=True).order_by("-date"):
+            tasklist.append({'taskId': task.pk, 'name': task.job.title, 'date': task.date,
+                             'sensor': task.sensor.sensorId})
+        userlist.append({'firstName': user.user.first_name, 'lastName': user.user.last_name, 'email': user.user.email,
+                         'id': user.user.pk, 'profession': user.profession.title, 'activeTasks': tasklist,
+                         "lat": user.location.lat, "long": user.location.longitude})
+    return JsonResponse({"users": userlist})
 
 
 def logout_view(request):
