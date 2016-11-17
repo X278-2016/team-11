@@ -45,7 +45,11 @@ public class AnalysisController {
             return "No alert issued";
         } else {
 
-            httpGet(buildUrlString());
+            //httpGet(buildUrlString());
+
+            // TODO esper test
+            alertservice.sendRandomEvents();
+
             return "Forwarded event " + id + " to dispatch";
         }
 
@@ -103,8 +107,6 @@ public class AnalysisController {
 
             request.addHeader("content-type", "application/json");
             request.setEntity(params);
-
-            // TODO: Need csrf token if django server for dispatch
 
             httpClient.execute(request);
 
