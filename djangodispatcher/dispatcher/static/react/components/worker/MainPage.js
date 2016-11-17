@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import { fetchCurrentUser, fetchCurrentUserTasks, fetchCompletedUserTasks,
- completeTask} from '../actions'
-import Sample from './sample'
+ completeTask} from '../../actions'
+import TaskPanel from './TaskPanel'
 
 var MainPage = React.createClass({
     componentDidMount: function(){
@@ -11,12 +11,13 @@ var MainPage = React.createClass({
     },
     render: function() {
         return(<div>
-                <h1 className="text-center">{this.props.user.firstName+" "+this.props.user.lastName}</h1>
+                <h1 className="text-center">{this.props.user.firstName+" "+this.props.user.lastName}
+                <span className="close"><a className="btn btn-default" href="/accounts/logout/">Logout</a></span></h1>
                 <div className="col-md-6">
-                    <Sample tasks={this.props.user.active_tasks} type="Active" completeTask={this.props.completeTask}/>
+                    <TaskPanel tasks={this.props.user.active_tasks} type="Active" completeTask={this.props.completeTask}/>
                 </div>
                 <div className="col-md-6">
-                    <Sample tasks={this.props.user.completed_tasks} type="Completed"/>
+                    <TaskPanel tasks={this.props.user.completed_tasks} type="Completed"/>
                 </div>
             </div>);
     }

@@ -4,20 +4,24 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.contrib.auth import logout, authenticate, login
 from .forms import LoginForm
 from .models import Task, Profile
-from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
-# Create your views here.
+
 
 @login_required
 def index(request):
-    return render(request, 'screens/dashboard.html', {})
-    #return HttpResponse("Hello, world. You're at the polls index.")
+    user = Profile.objects.get(user=request.user)
+    if user.admin:
+        return render(request, 'screens/operator.html', {})
+    else:
+        return render(request, 'screens/dashboard.html', {})
+
 
 @login_required
 def get_current_user(request):
     user = request.user
     return JsonResponse({'username': user.username, 'firstName': user.first_name, 'lastName': user.last_name,
                          'email': user.email, 'id': user.pk})
+
 
 @login_required
 def get_active_user_tasks(request):
@@ -27,6 +31,7 @@ def get_active_user_tasks(request):
         mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
     return JsonResponse({'active_tasks': mytask})
 
+
 @login_required
 def get_completed_user_tasks(request):
     user = Profile.objects.get(user=request.user)
@@ -34,6 +39,7 @@ def get_completed_user_tasks(request):
     for task in Task.objects.filter(worker=user, active=False):
         mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
     return JsonResponse({'completed_tasks': mytask})
+
 
 @login_required
 def complete_task(request):
@@ -52,6 +58,7 @@ def complete_task(request):
         return JsonResponse({'completed_tasks': completedtask, 'active_tasks': activetask})
     except Task.DoesNotExist:
         return JsonResponse({"result": "error"})
+
 
 @csrf_exempt
 def delegate(request):
@@ -74,12 +81,13 @@ def delegate(request):
     return JsonResponse({"result": "success", 'workerUsername': task.worker.username, 'workerId': task.worker.pk,
                          'name': task.name, 'date': task.date, 'taskId': task.pk})
 
+
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect('/')
 
+
 def login_view(request):
-    displaymessage = False
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -95,7 +103,7 @@ def login_view(request):
 
             else:
                 displaymessage = True
-                return render(request, 'accounts/login.html', {'form': form, 'displaymessage': displaymessage})
+                return render(request, 'accounts/login.html', {'form': form})
     else:
         form = LoginForm()
-    return render(request, 'accounts/login.html', {'form': form, 'displaymessage': displaymessage})
+    return render(request, 'accounts/login.html', {'form': form})

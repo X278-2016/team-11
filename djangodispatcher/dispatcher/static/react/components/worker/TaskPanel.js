@@ -1,4 +1,4 @@
-var Sample = React.createClass ({
+var TaskPanel = React.createClass ({
 	completeTask: function(evt) {
             var data = {
                 taskId: this.props.tasks[evt.target.id].taskId,
@@ -42,7 +42,7 @@ var Sample = React.createClass ({
             }
 });
 
-export default Sample
+export default TaskPanel
 /*
 var root = document.getElementById('sample');
 if(root != null && root != undefined){

@@ -1,2 +1,3 @@
-import Sample from './dispatcher/static/react/components/sample'
-import MainPageProvider from './dispatcher/static/react/components/MainPageProvider'
+import TaskPanel from './dispatcher/static/react/components/worker/TaskPanel'
+import MainPageProvider from './dispatcher/static/react/components/worker/MainPageProvider'
+import ControlCenterProvider from './dispatcher/static/react/components/operator/ControlCenterProvider'
