@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^api/delegate', views.delegate, name='delegate'),
 
     url(r'^api/allusers', views.get_all_workers, name='all_workers'),
+    url(r'^api/sensors', views.get_all_sensors, name='all_sensors'),
 
     url(r'^accounts/logout/$', views.logout_view, name='logout'),
     url(r'^accounts/login/$', views.login_view, name='login'),

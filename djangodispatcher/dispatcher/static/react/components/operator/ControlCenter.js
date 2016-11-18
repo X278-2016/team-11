@@ -1,11 +1,13 @@
 import { connect } from 'react-redux'
-import { fetchCurrentUser, fetchAllUsers} from '../../actions'
+import { fetchCurrentUser, fetchAllUsers, fetchAllSensors} from '../../actions'
 import UserPanel from './UserPanel'
+import Map from './Map'
 
 var ControlCenter = React.createClass({
     componentDidMount: function(){
         this.props.fetchCurrentUser();
         this.props.fetchAllUsers();
+        this.props.fetchAllSensors();
     },
     render: function() {
         var userlist = [];
@@ -18,19 +20,18 @@ var ControlCenter = React.createClass({
                 <h1 className="text-center">{this.props.user.firstName+" "+this.props.user.lastName}
                 <span className="close"><a className="btn btn-default" href="/accounts/logout/">Logout</a></span></h1>
                 <ul className="nav nav-tabs" role="tablist">
-                    <li role="presentation" className="active"><a href="#users" aria-controls="home" role="tab" data-toggle="tab">All Users</a></li>
-                    <li role="presentation"><a href="#map" aria-controls="profile" role="tab" data-toggle="tab">Sensor Map</a></li>
+                    <li role="presentation" className="active"><a href="#map" aria-controls="home" role="tab" data-toggle="tab">Sensor Map</a></li>
+                    <li role="presentation"><a href="#users" aria-controls="profile" role="tab" data-toggle="tab">All Users</a></li>
                     <li role="presentation"><a href="#job" aria-controls="messages" role="tab" data-toggle="tab">Add Job</a></li>
                   </ul>
                   <div className="tab-content">
-                    <div role="tabpanel" className="tab-pane active" id="users">
-                    <br/><br/>
-                    {userlist}
+                    <div role="tabpanel" className="tab-pane active text-center" id="map"><br/><br/>
+                    <Map sensors={this.props.sensors}/>
                     </div>
-
-                    <div role="tabpanel" className="tab-pane" id="map">Sensor Map</div>
+                    <div role="tabpanel" className="tab-pane" id="users"><br/><br/>{userlist}</div>
                     <div role="tabpanel" className="tab-pane" id="job">Add Job</div>
                   </div>
+
             </div>);
     }
 });
@@ -40,6 +41,8 @@ const mapStateToProps = (state) => {
     return {
         user: state.getCurrentUser,
         allUsers: state.operatorData.users,
+
+        sensors: state.operatorData.sensors
     };
 };
 
@@ -51,6 +54,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         fetchAllUsers:() => {
             dispatch(fetchAllUsers());
+        },
+        fetchAllSensors:() => {
+            dispatch(fetchAllSensors());
         }
     }
 };

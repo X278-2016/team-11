@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.contrib.auth import logout, authenticate, login
 from .forms import LoginForm
-from .models import Task, Profile
+from .models import Task, Profile, Sensor
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -95,6 +95,13 @@ def get_all_workers(request):
                          'id': user.user.pk, 'profession': user.profession.title, 'activeTasks': tasklist,
                          "lat": user.location.lat, "long": user.location.longitude})
     return JsonResponse({"users": userlist})
+
+@login_required
+def get_all_sensors(request):
+    sensorlist = []
+    for sensor in Sensor.objects.all():
+        sensorlist.append({"sensor": sensor.sensorId, "lat": sensor.location.lat, "long": sensor.location.longitude})
+    return JsonResponse({"sensors": sensorlist})
 
 
 def logout_view(request):
