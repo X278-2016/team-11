@@ -17,7 +17,18 @@ var Map = React.createClass( {
             var marker = new google.maps.Marker({
               position: sensor,
               map: this.map,
-              label: newProps.sensors[i].sensor
+              label: "S"+newProps.sensors[i].sensor,
+            });
+            this.state.sensorMarkers.push(marker)
+        }
+    }
+    if(newProps.users!=undefined){
+        for(var i=0;i<newProps.users.length;i++){
+            var sensor = {lat: parseFloat(newProps.users[i].lat), lng: parseFloat(newProps.users[i].long)};
+            var marker = new google.maps.Marker({
+              position: sensor,
+              map: this.map,
+              label: newProps.users[i].firstName,
             });
             this.state.sensorMarkers.push(marker)
         }

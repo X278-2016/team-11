@@ -2,7 +2,7 @@ var UserPanel = React.createClass ({
     render: function() {
     	var tasks = [];
     	for(var ii=0;ii<this.props.user.activeTasks.length;ii++){
-    		tasks.push(<li className="list-group-item" key={ii}>{this.props.user.activeTasks[ii].name} {this.props.user.activeTasks[ii].sensor}</li>);
+    		tasks.push(<li className="list-group-item" key={ii}>{this.props.user.activeTasks[ii].name} at Sensor {this.props.user.activeTasks[ii].sensor}</li>);
     	}
     	if(tasks.length == 0)
     		tasks.push(<li className="list-group-item" key="0">No Active Tasks!</li>);

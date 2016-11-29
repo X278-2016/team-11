@@ -26,7 +26,7 @@ var ControlCenter = React.createClass({
                   </ul>
                   <div className="tab-content">
                     <div role="tabpanel" className="tab-pane active text-center" id="map"><br/><br/>
-                    <Map sensors={this.props.sensors}/>
+                    <Map sensors={this.props.sensors} users={this.props.allUsers}/>
                     </div>
                     <div role="tabpanel" className="tab-pane" id="users"><br/><br/>{userlist}</div>
                     <div role="tabpanel" className="tab-pane" id="job">Add Job</div>

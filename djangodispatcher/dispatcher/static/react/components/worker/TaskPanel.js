@@ -6,40 +6,41 @@ var TaskPanel = React.createClass ({
             this.props.completeTask(data);
     },
     render: function() {
-    	if(this.props.tasks == undefined){
-            return(<div>Loading</div>)
-        } else {
-        	var task_list = [];
-        	if(this.props.tasks != undefined){
-        		if(this.props.type=="Active"){
-        			for(var ii = 0; ii<this.props.tasks.length; ii++){
-						task_list.push(<div className="list-group-item" key={ii}>
-							<button className="btn btn-success" onClick={this.completeTask} id={ii}>complete</button>
-							{this.props.tasks[ii].name+" "+this.props.tasks[ii].date}
-						</div>)
-					}
-        		} else {
-        			for(var ii = 0; ii<this.props.tasks.length; ii++){
-						task_list.push(<div className="list-group-item" key={ii}>
-							{this.props.tasks[ii].name+" "+this.props.tasks[ii].date}
-						</div>)
-					}
-        		}
-	        }
-	        return (
-				<div className="panel panel-default">
-				  <div className="panel-heading">
-				    <h3 className="panel-title">{this.props.type} Tasks</h3>
-				  </div>
-				  <div className="panel-body">
-				  		<div class="list-group">
-						   {task_list}
-						</div>
-				  </div>
-				</div>
-	        );
+		var task_list = [];
+		if(this.props.tasks != undefined){
+			if(this.props.type=="Active"){
+				for(var ii = 0; ii<this.props.tasks.length; ii++){
+					var myDate = new Date(this.props.tasks[ii].date);
+					task_list.push(<tr key={ii}>
+									<td>{this.props.tasks[ii].name}</td>
+									<td>{myDate.toLocaleString()}</td>
+									<td className="text-right"><button className="btn btn-success" onClick={this.completeTask} id={ii}>Complete</button></td>
+									</tr>)
+				}
+			} else {
+				for(var ii = 0; ii<this.props.tasks.length; ii++){
+					var myDate = new Date(this.props.tasks[ii].date);
+					task_list.push(<tr key={ii}>
+					<td>{this.props.tasks[ii].name}</td>
+					<td>{myDate.toLocaleString()}</td>
+					</tr>)
+				}
+			}
+		}
+		if(task_list.length == 0){
+			task_list.push(<tr key={1} className="text-center">No {this.props.type} Tasks</tr>)
+		}
+		return (
+			<div className="panel panel-default">
+			  <div className="panel-body">
+				<h3 className="panel-title text-center">{this.props.type} Tasks</h3>
+			  </div>
+			  <table className="table table-bordered">
+					   {task_list}
+				</table>
+			</div>
+		);
 	    }
-            }
 });
 
 export default TaskPanel

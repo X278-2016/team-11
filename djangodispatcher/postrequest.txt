@@ -1,0 +1,1 @@
+{"data": {"sensorId": 1,"temperature": 45,"pressure": 1},"tag": {"metric": "HIGH_VOLTAGE"}}

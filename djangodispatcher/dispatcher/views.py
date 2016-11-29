@@ -3,8 +3,10 @@ from django.http import JsonResponse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.contrib.auth import logout, authenticate, login
 from .forms import LoginForm
-from .models import Task, Profile, Sensor
+from .models import Task, Profile, Sensor, Job
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
+import math, json
 
 
 @login_required
@@ -28,7 +30,7 @@ def get_active_user_tasks(request):
     user = Profile.objects.get(user=request.user)
     mytask = []
     for task in Task.objects.filter(worker=user, active=True).order_by("-date"):
-        mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
+        mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.title, 'date': task.date})
     return JsonResponse({'active_tasks': mytask})
 
 
@@ -37,7 +39,7 @@ def get_completed_user_tasks(request):
     user = Profile.objects.get(user=request.user)
     mytask = []
     for task in Task.objects.filter(worker=user, active=False).order_by("-date"):
-        mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
+        mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.title, 'date': task.date})
     return JsonResponse({'completed_tasks': mytask})
 
 
@@ -51,10 +53,10 @@ def complete_task(request):
         user = Profile.objects.get(user=request.user)
         completedtask = []
         for task in Task.objects.filter(worker=user, active=False):
-            completedtask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
+            completedtask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.title, 'date': task.date})
         activetask = []
         for task in Task.objects.filter(worker=user, active=True):
-            activetask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.name, 'date': task.date})
+            activetask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.title, 'date': task.date})
         return JsonResponse({'completed_tasks': completedtask, 'active_tasks': activetask})
     except Task.DoesNotExist:
         return JsonResponse({"result": "error"})
@@ -63,22 +65,39 @@ def complete_task(request):
 @csrf_exempt
 def delegate(request):
     # retrieve post data
-    name = request.POST.get('name', 'default name')
-    city = request.POST.get('city', 'Nashville')
-    job = request.POST.get('job', 'electrical')
+    sample_data = '{"data":{"sensorId":1,"temperature":45,"pressure":1},"tag":{"metric":"HIGH_VOLTAGE"}}'
+    body_unicode = request.body.encode('utf-8')
+    body = json.loads(sample_data)
+    try:
+        tag = body['tag']
+        data = body['data']
+        sensorId = data["sensorId"]
+        try:
+            date = data["date"]
+        except KeyError:
+            date = timezone.now()
+        metric = tag["metric"]
+        sensor = Sensor.objects.get(sensorId=sensorId)
+        job = Job.objects.get(title=metric)
+    except Sensor.DoesNotExist:
+        return JsonResponse({"error": "No such sensor"})
+    except Job.DoesNotExist:
+        return JsonResponse({"error": "No such job type"})
+    except KeyError:
+        return JsonResponse({"error": "Key Error"})
     correct_user = None
     smallest = -1
-    # query for ones that match job description
-    # include location query
-    # choose based on who has the least amount
-    for user in Profile.objects.filter(location__city=city, profession_title=job):
-        # find the qualified user with the least number of tasks queued
-        if smallest == -1 or len(user.task_set.filter(active=True)) < smallest:
+    # for all users that can solve the task
+    for user in Profile.objects.filter(profession__jobs=job):
+        # queue closest
+        distance = math.sqrt(math.pow(abs(sensor.location.lat-user.location.lat), 2)+math.pow(abs(sensor.location.longitude-user.location.longitude), 2))
+        if smallest == -1 or distance < smallest:
             correct_user = user
+            smallest = distance
     if correct_user is None:
-        return JsonResponse({"result": "error"})
-    task = Task.objects.create(worker=correct_user, name=name)
-    return JsonResponse({"result": "success", 'workerUsername': task.worker.username, 'workerId': task.worker.pk,
+        return JsonResponse({"error": "no user found"})
+    task = Task.objects.create(worker=correct_user, sensor=sensor, job=job, date=date)
+    return JsonResponse({"result": "success", 'workerUsername': task.worker.user.username, 'workerId': task.worker.pk,
                          'name': task.job.title, 'date': task.date, 'taskId': task.pk})
 
 
