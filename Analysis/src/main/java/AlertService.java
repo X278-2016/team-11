@@ -13,7 +13,7 @@ import java.util.Random;
 public class AlertService {
 
     private final String TEMP_CHECK_EXPRESSION =
-            "select avg(temp) from SensorEvent.win:time(5 sec)";
+            "select avg(temperature) from SensorEvent.win:time(5 sec)";
 
     EPServiceProvider epService;
     EPStatement tempStatement;
@@ -35,6 +35,7 @@ public class AlertService {
     public void sendRandomEvents() {
 
         double temp = (double) generator.nextInt(10);
+        double pressure = (double) generator.nextInt(20);
 
         SensorEvent newEvent = new SensorEvent("1", temp, pressure);
 
