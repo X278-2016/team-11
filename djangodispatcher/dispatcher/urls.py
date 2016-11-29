@@ -14,6 +14,8 @@ urlpatterns = [
     url(r'^api/allusers', views.get_all_workers, name='all_workers'),
     url(r'^api/sensors', views.get_all_sensors, name='all_sensors'),
 
+    url(r'^initialize', views.initialize, name='init'),
+
     url(r'^accounts/logout/$', views.logout_view, name='logout'),
     url(r'^accounts/login/$', views.login_view, name='login'),
 ]

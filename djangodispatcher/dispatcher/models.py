@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
 
-import datetime
+from django.utils import timezone
 
 class Profession(models.Model):
     title = models.CharField(max_length=30, default="None")
@@ -42,7 +42,8 @@ class Task(models.Model):
     worker = models.ForeignKey(Profile)
     sensor = models.ForeignKey("Sensor", blank=True, null=True)
     job = models.ForeignKey(Job, blank=True, null=True)
-    date = models.DateTimeField(default=datetime.datetime.now())
+    date = models.DateTimeField(default=timezone.now())
+    datecompleted = models.DateTimeField(default=timezone.now())
     active = models.BooleanField(default=True)
 
     def __unicode__(self):
