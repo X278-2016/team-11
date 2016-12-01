@@ -72,6 +72,5 @@ export default TaskPanel
 /*
 var root = document.getElementById('sample');
 if(root != null && root != undefined){
-	console.log("found");
     ReactDOM.render(<Sample name="Sam"/>,root);
 }*/

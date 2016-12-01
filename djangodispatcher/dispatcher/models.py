@@ -38,6 +38,9 @@ class Profile(models.Model):
     def __unicode__(self):
         return self.user.username
 
+    def num_active_tasks(self):
+        return self.task_set.filter(active=True).count()
+
 class Task(models.Model):
     worker = models.ForeignKey(Profile)
     sensor = models.ForeignKey("Sensor", blank=True, null=True)

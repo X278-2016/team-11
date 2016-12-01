@@ -93,12 +93,14 @@ def delegate(request):
     correct_user = None
     smallest = -1
     # for all users that can solve the task
+    # sample is 0.313+0.1 for each queued (to account for distance)
     for user in Profile.objects.filter(profession__jobs=job, admin=False):
         # queue closest
         distance = math.sqrt(math.pow(abs(sensor.location.lat-user.location.lat), 2)+math.pow(abs(sensor.location.longitude-user.location.longitude), 2))
-        if smallest == -1 or distance < smallest:
+        value = distance + 0.1*user.num_active_tasks()
+        if smallest == -1 or value < smallest:
             correct_user = user
-            smallest = distance
+            smallest = value
     if correct_user is None:
         return JsonResponse({"error": "no user found"})
     task = Task.objects.create(worker=correct_user, sensor=sensor, job=job, date=date)
