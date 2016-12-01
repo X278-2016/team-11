@@ -40,8 +40,10 @@ def get_completed_user_tasks(request):
     user = Profile.objects.get(user=request.user)
     mytask = []
     for task in Task.objects.filter(worker=user, active=False).order_by("-date"):
+        time = (task.datecompleted-task.date)
+        hoursOpen = time.days*24+time.seconds/3600
         mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.title, 'date': task.date,
-                       "sensor": task.sensor.sensorId, "dateCompleted": task.datecompleted, "hoursOpen": (task.datecompleted-task.date).seconds/3600})
+                       "sensor": task.sensor.sensorId, "dateCompleted": task.datecompleted, "hoursOpen": hoursOpen})
     return JsonResponse({'completed_tasks': mytask})
 
 
@@ -56,12 +58,14 @@ def complete_task(request):
         user = Profile.objects.get(user=request.user)
         completedtask = []
         for task in Task.objects.filter(worker=user, active=False):
+            time = (task.datecompleted-task.date)
+            hoursOpen = time.days*24+time.seconds/3600
             completedtask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.title, 'date': task.date,
-                       "sensor": task.sensor.sensorId, "dateCompleted": task.datecompleted, "hoursOpen": (task.datecompleted-task.date).seconds/3600})
+                                  "sensor": task.sensor.sensorId, "dateCompleted": task.datecompleted, "hoursOpen": hoursOpen})
         activetask = []
         for task in Task.objects.filter(worker=user, active=True):
             activetask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.title, 'date': task.date,
-                       "sensor": task.sensor.sensorId})
+                               "sensor": task.sensor.sensorId})
         return JsonResponse({'completed_tasks': completedtask, 'active_tasks': activetask})
     except Task.DoesNotExist:
         return JsonResponse({"result": "error"})
@@ -129,6 +133,34 @@ def get_all_sensors(request):
         sensorlist.append({"sensor": sensor.sensorId, "lat": sensor.location.lat, "long": sensor.location.longitude})
     return JsonResponse({"sensors": sensorlist})
 
+@login_required
+def get_totals_data(request):
+    active = Task.objects.filter(active=True).count()
+    done = Task.objects.filter(active=False).count()
+    numUsers = Profile.objects.filter(admin=False).count()
+    titles = []
+    sites = []
+    titles.append("Site")
+    for job in Job.objects.all().order_by("pk"):
+        titles.append(job.title)
+    titles.append("Total")
+
+    for site in Sensor.objects.all().order_by("sensorId"):
+        data = []
+        data.append(site.sensorId)
+        for job in Job.objects.all().order_by("pk"):
+            data.append(Task.objects.filter(sensor=site, job=job).count())
+        data.append(Task.objects.filter(sensor=site).count())
+        sites.append(data)
+
+    data = []
+    data.append("All")
+    for job in Job.objects.all().order_by("pk"):
+            data.append(Task.objects.filter(job=job).count())
+    data.append(Task.objects.all().count())
+    sites.append(data)
+    return JsonResponse({"numActive": active, "numDone": done, "numUsers": numUsers, "sites":
+        {"titles": titles, "data": sites}})
 
 def logout_view(request):
     logout(request)

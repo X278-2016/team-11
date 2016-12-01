@@ -50,7 +50,7 @@ class Task(models.Model):
     active = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return self.name
+        return self.job.title
 
 class Sensor(models.Model):
     sensorId = models.CharField(max_length=50, default="0", unique=True)

@@ -13,6 +13,7 @@ urlpatterns = [
 
     url(r'^api/allusers', views.get_all_workers, name='all_workers'),
     url(r'^api/sensors', views.get_all_sensors, name='all_sensors'),
+    url(r'^api/totaldata', views.get_totals_data, name='all_data'),
 
     url(r'^initialize', views.initialize, name='init'),
 

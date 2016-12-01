@@ -49,6 +49,14 @@ export function fetchAllSensors(){
     }
 }
 
+export function fetchTotalData(){
+    return function (dispatch){
+        return $.get('/api/totaldata', function(result){
+            dispatch(getOperatorUpdater(result))
+        }.bind(this));
+    }
+}
+
 export function completeTask(data){
     return function (dispatch){
         var url = '/api/finishtask/';
