@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.espertech:esper:5.3.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.espertech/esper/5.3.0/97c56f40e4c73c26e84db6da846360bb54af2f37/esper-5.3.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.espertech/esper/5.3.0/e2f45aeb91a9439ce6883168d3d09ade951543c/esper-5.3.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
