@@ -77,12 +77,16 @@ def complete_task(request):
 @csrf_exempt
 def delegate(request):
     # retrieve post data
+    #
+    # TODO: take into account if a user is already at that location
     sample_data = '{"data":{"sensorId":1,"temperature":45,"pressure":1},"tag":{"metric":"HIGH_VOLTAGE"}}'
     body_unicode = request.body.encode('utf-8')
     body = json.loads(sample_data)
     try:
-        tag = body['tag']
-        data = body['data']
+        # tag = body['tag']
+        tag = request.POST.get('tag', None)
+        # data = body['data']
+        data = request.POST.get('data', None)
         sensorId = data["sensorId"]
         try:
             date = data["date"]
@@ -203,6 +207,7 @@ def initialize(request):
     loc4 = Location.objects.create(lat=35.9, longitude=-86.7)
     loc5 = Location.objects.create(lat=36.16270, longitude=-86.78160)  # electrician
     loc6 = Location.objects.create(lat=36, longitude=-86.75)  # mechanic
+    loc7 = Location.objects.create(lat=36.3, longitude=-86.75)  # other mechanic
 
     j1 = Job.objects.create(title="LOW_VOLTAGE", name="Low Voltage")
     j2 = Job.objects.create(title="HIGH_VOLTAGE", name="High Voltage")
@@ -244,6 +249,9 @@ def initialize(request):
     u2 = User.objects.create_user(username="mechanic", email="mechanic", password="engineering", first_name="Ben",
                                   last_name="Mechanic")
     p2 = Profile.objects.create(user=u2, profession=mech, location=loc6, admin=False)
+    u3 = User.objects.create_user(username="mechanic2", email="mechanic2", password="engineering", first_name="Other",
+                                  last_name="Mechanic")
+    p3 = Profile.objects.create(user=u3, profession=mech, location=loc7, admin=False)
 
     Task.objects.create(worker=p1, sensor=s1, job=j1, date=datetime.datetime(2016, 11, 28, 14, 11, 56, tzinfo=pytz.utc),
                         datecompleted=datetime.datetime(2016, 11, 28, 18, 05, 48, tzinfo=pytz.utc), active=False)
