@@ -26,11 +26,20 @@ repositories {
 }
 
 dependencies {
+
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
+
     testCompile group: 'junit', name: 'junit', version: '4.11'
     // tag::jetty[]
     compile("org.springframework.boot:spring-boot-starter-web") {
         exclude module: "spring-boot-starter-tomcat"
     }
+
+    // https://mvnrepository.com/artifact/com.espertech/esper
+    compile group: 'com.espertech', name: 'esper', version: '5.3.0'
+
+
     compile("org.springframework.boot:spring-boot-starter-jetty")
     // end::jetty[]
     // tag::actuator[]
