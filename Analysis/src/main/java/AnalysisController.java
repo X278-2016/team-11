@@ -39,82 +39,19 @@ public class AnalysisController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public String index(@PathVariable("id") int id) {
 
-        JSONObject result = alertservice.testForAlert(id);
+        alertservice.sendTestAlert(id);
+
+        /*JSONObject result = alertservice.testForAlert(id);
 
         if(result == null) {
             return "No alert issued";
         } else {
 
-            httpGet(buildUrlString());
+            // TODO esper test
+            alertservice.sendRandomEvents();*/
+
             return "Forwarded event " + id + " to dispatch";
-        }
 
-    }
-
-    private String buildUrlString(){
-
-        return DISPATCH_URL + "?name=alert1&id=1";
-
-    }
-
-    private  void httpGet(String urlString) {
-
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-
-        try {
-
-            HttpGet request = new HttpGet(urlString);
-
-            CloseableHttpResponse response = httpClient.execute(request);
-
-            System.out.println("\nSending 'GET' request to URL : " + urlString);
-            System.out.println("Response Code : " +
-                    response.getStatusLine().getStatusCode());
-
-            HttpEntity entity = response.getEntity();
-
-            BufferedReader rd = new BufferedReader(
-                    new InputStreamReader(entity.getContent()));
-
-            StringBuffer result = new StringBuffer();
-            String line = "";
-            while ((line = rd.readLine()) != null) {
-                result.append(line);
-            }
-
-            EntityUtils.consume(entity);
-
-            System.out.println(result.toString());
-
-
-        } catch (Exception e ) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void httpPostJson(String url, JSONObject json){
-
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-
-        try {
-            HttpPost request = new HttpPost(url);
-            StringEntity params = new StringEntity(json.toString());
-
-            request.addHeader("content-type", "application/json");
-            request.setEntity(params);
-
-            // TODO: Need csrf token if django server for dispatch
-
-            httpClient.execute(request);
-
-            httpClient.close();
-
-            // Response, if any
-        } catch (IOException ex) {
-            // handle exception here
-            ex.printStackTrace();
-        }
 
     }
 }
