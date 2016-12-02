@@ -60,7 +60,7 @@ public class RestUtils {
 
     public static void httpPostJson(String url, JSONObject json){
 
-        /*CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
         try {
             HttpPost request = new HttpPost(url);
@@ -77,7 +77,7 @@ public class RestUtils {
         } catch (IOException ex) {
             // handle exception here
             ex.printStackTrace();
-        }*/
+        }
 
     }
 }
