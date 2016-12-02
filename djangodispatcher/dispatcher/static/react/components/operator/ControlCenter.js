@@ -20,12 +20,12 @@ var ControlCenter = React.createClass({
                 userlist.push(<div className="col-md-4" key={ii}><UserPanel user = {this.props.allUsers[ii]}/></div>);
             }
         }
-        trends.push(<div className="col-md-6" key={1}><TaskTrend title="Total Users" number={this.props.numUsers}/></div>);
-        trends.push(<div className="col-md-6" key={2}><TaskTrend title="Total Tasks Done" number={this.props.numDone}/></div>);
-        trends.push(<div className="col-md-offset-3 col-md-6" key={3}><TaskTrend title="Total Tasks Pending" number={this.props.numActive}/></div>);
+        trends.push(<div className="col-md-4" key={1}><TaskTrend title="Total Users" number={this.props.numUsers}/></div>);
+        trends.push(<div className="col-md-4" key={2}><TaskTrend title="Total Tasks Done" number={this.props.numDone}/></div>);
+        trends.push(<div className="col-md-4" key={3}><TaskTrend title="Total Tasks Pending" number={this.props.numActive}/></div>);
         return(<div>
                 <h1 className="text-center">{this.props.user.firstName+" "+this.props.user.lastName}
-                <span className="close"><a className="btn btn-default" href="/accounts/logout/">Logout</a></span></h1>
+                <span className="logout-btn"><a className="btn btn-warning" href="/accounts/logout/">Logout</a></span></h1>
                 <ul className="nav nav-tabs" role="tablist">
                     <li role="presentation" className="active"><a href="#map" aria-controls="home" role="tab" data-toggle="tab">Sensor Map</a></li>
                     <li role="presentation"><a href="#users" aria-controls="profile" role="tab" data-toggle="tab">All Users</a></li>
@@ -37,11 +37,8 @@ var ControlCenter = React.createClass({
                     </div>
                     <div role="tabpanel" className="tab-pane" id="users"><br/><br/>{userlist}</div>
                     <div role="tabpanel" className="tab-pane" id="trends"><br/><br/>
-                        <div className="col-md-8">
+                        <div className="col-md-12">
                         {trends}
-                        </div>
-                        <div className="col-md-4">
-
                         </div>
                         <div className="col-md-12">
                             <SiteTable sites={this.props.sites}/>

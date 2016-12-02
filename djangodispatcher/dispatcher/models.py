@@ -15,6 +15,7 @@ class Profession(models.Model):
 
 class Job(models.Model):
     title = models.CharField(max_length=30, default="None")
+    name = models.CharField(max_length=30, default="None")
 
     def __unicode__(self):
         return self.title

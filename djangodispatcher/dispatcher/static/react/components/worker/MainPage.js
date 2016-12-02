@@ -12,7 +12,7 @@ var MainPage = React.createClass({
     render: function() {
         return(<div>
                 <h1 className="text-center">{this.props.user.firstName+" "+this.props.user.lastName}
-                <span className="close"><a className="btn btn-default" href="/accounts/logout/">Logout</a></span></h1>
+                <span className="logout-btn"><a className="btn btn-warning" href="/accounts/logout/">Logout</a></span></h1>
                 <div className="col-md-6">
                     <TaskPanel tasks={this.props.user.active_tasks} type="Active" completeTask={this.props.completeTask}/>
                 </div>

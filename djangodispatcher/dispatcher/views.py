@@ -2,11 +2,14 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.contrib.auth import logout, authenticate, login
+from django.views.decorators.csrf import csrf_exempt
+
 from .forms import LoginForm
 from .models import Task, Profile, Sensor, Job, Location, Profession
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
+
 from django.utils import timezone
-import math, json
+import math, json, pytz, datetime
 
 
 @login_required
@@ -30,7 +33,7 @@ def get_active_user_tasks(request):
     user = Profile.objects.get(user=request.user)
     mytask = []
     for task in Task.objects.filter(worker=user, active=True).order_by("-date"):
-        mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.title, 'date': task.date,
+        mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.name, 'date': task.date,
                        "sensor": task.sensor.sensorId})
     return JsonResponse({'active_tasks': mytask})
 
@@ -42,7 +45,7 @@ def get_completed_user_tasks(request):
     for task in Task.objects.filter(worker=user, active=False).order_by("-date"):
         time = (task.datecompleted-task.date)
         hoursOpen = time.days*24+time.seconds/3600
-        mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.title, 'date': task.date,
+        mytask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.name, 'date': task.date,
                        "sensor": task.sensor.sensorId, "dateCompleted": task.datecompleted, "hoursOpen": hoursOpen})
     return JsonResponse({'completed_tasks': mytask})
 
@@ -60,11 +63,11 @@ def complete_task(request):
         for task in Task.objects.filter(worker=user, active=False):
             time = (task.datecompleted-task.date)
             hoursOpen = time.days*24+time.seconds/3600
-            completedtask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.title, 'date': task.date,
+            completedtask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.name, 'date': task.date,
                                   "sensor": task.sensor.sensorId, "dateCompleted": task.datecompleted, "hoursOpen": hoursOpen})
         activetask = []
         for task in Task.objects.filter(worker=user, active=True):
-            activetask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.title, 'date': task.date,
+            activetask.append({'taskId': task.pk, 'workerId': task.worker.pk, 'name': task.job.name, 'date': task.date,
                                "sensor": task.sensor.sensorId})
         return JsonResponse({'completed_tasks': completedtask, 'active_tasks': activetask})
     except Task.DoesNotExist:
@@ -100,7 +103,8 @@ def delegate(request):
     # sample is 0.313+0.1 for each queued (to account for distance)
     for user in Profile.objects.filter(profession__jobs=job, admin=False):
         # queue closest
-        distance = math.sqrt(math.pow(abs(sensor.location.lat-user.location.lat), 2)+math.pow(abs(sensor.location.longitude-user.location.longitude), 2))
+        distance = math.sqrt(math.pow(abs(sensor.location.lat-user.location.lat), 2) +
+                             math.pow(abs(sensor.location.longitude-user.location.longitude), 2))
         value = distance + 0.1*user.num_active_tasks()
         if smallest == -1 or value < smallest:
             correct_user = user
@@ -109,7 +113,7 @@ def delegate(request):
         return JsonResponse({"error": "no user found"})
     task = Task.objects.create(worker=correct_user, sensor=sensor, job=job, date=date)
     return JsonResponse({"result": "success", 'workerUsername': task.worker.user.username, 'workerId': task.worker.pk,
-                         'name': task.job.title, 'date': task.date, 'taskId': task.pk})
+                         'name': task.job.name, 'date': task.date, 'taskId': task.pk})
 
 
 # operator APIs
@@ -119,48 +123,51 @@ def get_all_workers(request):
     for user in Profile.objects.filter(admin=False):
         tasklist = []
         for task in Task.objects.filter(worker=user, active=True).order_by("-date"):
-            tasklist.append({'taskId': task.pk, 'name': task.job.title, 'date': task.date,
+            tasklist.append({'taskId': task.pk, 'name': task.job.name, 'date': task.date,
                              'sensor': task.sensor.sensorId})
         userlist.append({'firstName': user.user.first_name, 'lastName': user.user.last_name, 'email': user.user.email,
                          'id': user.user.pk, 'profession': user.profession.title, 'activeTasks': tasklist,
-                         "lat": user.location.lat, "long": user.location.longitude})
+                         "lat": user.location.lat, "long": user.location.longitude,
+                         "numActive": Task.objects.filter(worker=user, active=True).count(),
+                         "numDone": Task.objects.filter(worker=user, active=False).count()})
     return JsonResponse({"users": userlist})
+
 
 @login_required
 def get_all_sensors(request):
-    sensorlist = []
+    sensor_list = []
     for sensor in Sensor.objects.all():
-        sensorlist.append({"sensor": sensor.sensorId, "lat": sensor.location.lat, "long": sensor.location.longitude})
-    return JsonResponse({"sensors": sensorlist})
+        sensor_list.append({"sensor": sensor.sensorId, "lat": sensor.location.lat, "long": sensor.location.longitude})
+    return JsonResponse({"sensors": sensor_list})
+
 
 @login_required
 def get_totals_data(request):
     active = Task.objects.filter(active=True).count()
     done = Task.objects.filter(active=False).count()
-    numUsers = Profile.objects.filter(admin=False).count()
+    num_users = Profile.objects.filter(admin=False).count()
     titles = []
     sites = []
     titles.append("Site")
     for job in Job.objects.all().order_by("pk"):
-        titles.append(job.title)
+        titles.append(job.name)
     titles.append("Total")
 
     for site in Sensor.objects.all().order_by("sensorId"):
-        data = []
-        data.append(site.sensorId)
+        data = [site.sensorId]
         for job in Job.objects.all().order_by("pk"):
             data.append(Task.objects.filter(sensor=site, job=job).count())
         data.append(Task.objects.filter(sensor=site).count())
         sites.append(data)
 
-    data = []
-    data.append("All")
+    data = ["All"]
     for job in Job.objects.all().order_by("pk"):
             data.append(Task.objects.filter(job=job).count())
     data.append(Task.objects.all().count())
     sites.append(data)
-    return JsonResponse({"numActive": active, "numDone": done, "numUsers": numUsers, "sites":
-        {"titles": titles, "data": sites}})
+    return JsonResponse({"numActive": active, "numDone": done, "numUsers": num_users, "sites":
+                        {"titles": titles, "data": sites}})
+
 
 def logout_view(request):
     logout(request)
@@ -182,7 +189,6 @@ def login_view(request):
                     return HttpResponse("disabled")
 
             else:
-                displaymessage = True
                 return render(request, 'accounts/login.html', {'form': form})
     else:
         form = LoginForm()
@@ -190,18 +196,20 @@ def login_view(request):
 
 
 def initialize(request):
+    # run python manage.py flush from the command line before executing this
     loc1 = Location.objects.create(lat=36.3, longitude=-86.5)
     loc2 = Location.objects.create(lat=36.1, longitude=-87)
     loc3 = Location.objects.create(lat=36.3, longitude=-86.9)
     loc4 = Location.objects.create(lat=35.9, longitude=-86.7)
-    loc5 = Location.objects.create(lat=36.16270, longitude=-86.78160)
+    loc5 = Location.objects.create(lat=36.16270, longitude=-86.78160)  # electrician
+    loc6 = Location.objects.create(lat=36, longitude=-86.75)  # mechanic
 
-    j1 = Job.objects.create(title="LOW_VOLTAGE")
-    j2 = Job.objects.create(title="HIGH_VOLTAGE")
-    j3 = Job.objects.create(title="LOW_PRESSURE")
-    j4 = Job.objects.create(title="HIGH_PRESSURE")
-    j5 = Job.objects.create(title="TEMPERATURE_CHANGE")
-    j6 = Job.objects.create(title="HIGH_TEMPERATURE")
+    j1 = Job.objects.create(title="LOW_VOLTAGE", name="Low Voltage")
+    j2 = Job.objects.create(title="HIGH_VOLTAGE", name="High Voltage")
+    j3 = Job.objects.create(title="LOW_PRESSURE", name="Low Pressure")
+    j4 = Job.objects.create(title="HIGH_PRESSURE", name="High Pressure")
+    j5 = Job.objects.create(title="TEMPERATURE_CHANGE", name="Temperature Change")
+    j6 = Job.objects.create(title="HIGH_TEMPERATURE", name="Temperature Change")
 
     op = Profession.objects.create(title="Operator")
     op.jobs.add(j1)
@@ -222,9 +230,30 @@ def initialize(request):
     elec.jobs.add(j2)
     elec.save()
 
-    Sensor.objects.create(sensorId=1, location=loc1)
-    Sensor.objects.create(sensorId=2, location=loc2)
-    Sensor.objects.create(sensorId=3, location=loc3)
-    Sensor.objects.create(sensorId=4, location=loc4)
+    s1 = Sensor.objects.create(sensorId=1, location=loc1)
+    s2 = Sensor.objects.create(sensorId=2, location=loc2)
+    s3 = Sensor.objects.create(sensorId=3, location=loc3)
+    s4 = Sensor.objects.create(sensorId=4, location=loc4)
+
+    admin = User.objects.create_superuser(username="admin", email="sam@gmail.com", password="engineering",
+                                          first_name="CSX278", last_name="Class")
+    Profile.objects.create(user=admin, profession=op, location=loc5, admin=True)
+    u1 = User.objects.create_user(username="electrician", email="electrician", password="engineering", first_name="Joe",
+                                  last_name="Electrician")
+    p1 = Profile.objects.create(user=u1, profession=elec, location=loc5, admin=False)
+    u2 = User.objects.create_user(username="mechanic", email="mechanic", password="engineering", first_name="Ben",
+                                  last_name="Mechanic")
+    p2 = Profile.objects.create(user=u2, profession=mech, location=loc6, admin=False)
+
+    Task.objects.create(worker=p1, sensor=s1, job=j1, date=datetime.datetime(2016, 11, 28, 14, 11, 56, tzinfo=pytz.utc),
+                        datecompleted=datetime.datetime(2016, 11, 28, 18, 05, 48, tzinfo=pytz.utc), active=False)
+    Task.objects.create(worker=p1, sensor=s2, job=j2, date=datetime.datetime(2016, 11, 28, 16, 48, 40, tzinfo=pytz.utc),
+                        datecompleted=datetime.datetime(2016, 11, 28, 20, 07, 45, tzinfo=pytz.utc), active=False)
+    Task.objects.create(worker=p1, sensor=s4, job=j2, date=datetime.datetime(2016, 12, 1, 20, 30, 40, tzinfo=pytz.utc),
+                        datecompleted=datetime.datetime(2016, 12, 1, 20, 30, 40, tzinfo=pytz.utc), active=True)
+    Task.objects.create(worker=p2, sensor=s3, job=j4, date=datetime.datetime(2016, 12, 1, 18, 11, 40, tzinfo=pytz.utc),
+                        datecompleted=datetime.datetime(2016, 12, 1, 23, 46, 59, tzinfo=pytz.utc), active=False)
+    Task.objects.create(worker=p2, sensor=s4, job=j3, date=datetime.datetime(2016, 12, 2, 12, 11, 40, tzinfo=pytz.utc),
+                        datecompleted=datetime.datetime(2016, 12, 2, 12, 11, 40, tzinfo=pytz.utc), active=True)
 
     return JsonResponse({})
