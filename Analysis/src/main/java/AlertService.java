@@ -91,7 +91,7 @@ public class AlertService {
             return;
         }
 
-        String sensorID = "0";
+        String sensorID = "1";
         double defaultTemp = 70;
         double defaultPressure = 10;
         double defaultVoltage = 5;

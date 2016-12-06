@@ -76,24 +76,21 @@ def complete_task(request):
 
 @csrf_exempt
 def delegate(request):
-    # retrieve post data
-    #
+    sample_data = request.body
     # TODO: take into account if a user is already at that location
-    sample_data = '{"data":{"sensorId":1,"temperature":45,"pressure":1},"tag":{"metric":"HIGH_VOLTAGE"}}'
-    body_unicode = request.body.encode('utf-8')
+    # TODO: python 3 receives 'bytes' instead of string, so data needs to be decoded
+    # sample_data = request.body.decode('utf-8')
     body = json.loads(sample_data)
     try:
-        # tag = body['tag']
-        tag = request.POST.get('tag', None)
-        # data = body['data']
-        data = request.POST.get('data', None)
-        sensorId = data["sensorId"]
+        tag = body['tag']
+        data = body['data']
+        sensorId = data["sensorID"]
         try:
             date = data["date"]
         except KeyError:
             date = timezone.now()
         metric = tag["metric"]
-        sensor = Sensor.objects.get(sensorId=sensorId)
+        sensor = Sensor.objects.get(sensorId=int(sensorId))
         job = Job.objects.get(title=metric)
     except Sensor.DoesNotExist:
         return JsonResponse({"error": "No such sensor"})
@@ -214,7 +211,7 @@ def initialize(request):
     j3 = Job.objects.create(title="LOW_PRESSURE", name="Low Pressure")
     j4 = Job.objects.create(title="HIGH_PRESSURE", name="High Pressure")
     j5 = Job.objects.create(title="TEMPERATURE_CHANGE", name="Temperature Change")
-    j6 = Job.objects.create(title="HIGH_TEMPERATURE", name="Temperature Change")
+    j6 = Job.objects.create(title="HIGH_TEMPERATURE", name="High Temperature")
 
     op = Profession.objects.create(title="Operator")
     op.jobs.add(j1)
@@ -254,9 +251,9 @@ def initialize(request):
     p3 = Profile.objects.create(user=u3, profession=mech, location=loc7, admin=False)
 
     Task.objects.create(worker=p1, sensor=s1, job=j1, date=datetime.datetime(2016, 11, 28, 14, 11, 56, tzinfo=pytz.utc),
-                        datecompleted=datetime.datetime(2016, 11, 28, 18, 05, 48, tzinfo=pytz.utc), active=False)
+                        datecompleted=datetime.datetime(2016, 11, 28, 18, 5, 48, tzinfo=pytz.utc), active=False)
     Task.objects.create(worker=p1, sensor=s2, job=j2, date=datetime.datetime(2016, 11, 28, 16, 48, 40, tzinfo=pytz.utc),
-                        datecompleted=datetime.datetime(2016, 11, 28, 20, 07, 45, tzinfo=pytz.utc), active=False)
+                        datecompleted=datetime.datetime(2016, 11, 28, 20, 7, 45, tzinfo=pytz.utc), active=False)
     Task.objects.create(worker=p1, sensor=s4, job=j2, date=datetime.datetime(2016, 12, 1, 20, 30, 40, tzinfo=pytz.utc),
                         datecompleted=datetime.datetime(2016, 12, 1, 20, 30, 40, tzinfo=pytz.utc), active=True)
     Task.objects.create(worker=p2, sensor=s3, job=j4, date=datetime.datetime(2016, 12, 1, 18, 11, 40, tzinfo=pytz.utc),

@@ -1,1 +1,11 @@
 /springtest/**
+
+/Analysis/.gradle/**
+/Analysis/.idea/**
+/Analysis/build/**
+/Analysis/gradle/**
+/Analysis/Analysis.iml
+/Analysis/com.vanderbilt.iml
+/Analysis/gradlew
+/Analysis/gradlew.bat
+/Analysis/settings.gradle

@@ -17,7 +17,7 @@ var ControlCenter = React.createClass({
         var trends = [];
         if(this.props.allUsers!=undefined){
             for(var ii=0;ii<this.props.allUsers.length;ii++){
-                userlist.push(<div className="col-md-4" key={ii}><UserPanel user = {this.props.allUsers[ii]}/></div>);
+                userlist.push(<div className="col-md-4 col-sm-6" key={ii}><UserPanel user = {this.props.allUsers[ii]}/></div>);
             }
         }
         trends.push(<div className="col-md-4" key={1}><TaskTrend title="Total Users" number={this.props.numUsers}/></div>);
@@ -48,7 +48,8 @@ var ControlCenter = React.createClass({
 
             </div>);
     }
-});
+});//                    <Map sensors={this.props.sensors} users={this.props.allUsers}/>
+
 
 const mapStateToProps = (state) => {
     console.log(state);

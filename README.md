@@ -44,4 +44,6 @@ Endpoints:
 
 ## Running the Spring Server
 
+Import 'Analysis' as gradle project. This folder only contains src/ and build.gradle. If this does not work, create your own gradle project and then copy src into it and use the build.gradle provided here. To generate the gradle wrapper, run `gradle wrapper`.
+
 Run the command `./gradlew build && java -jar build/libs/gs-spring-boot-0.1.0.jar`
