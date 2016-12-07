@@ -29,3 +29,9 @@
 # PYC
 ######################
 *.pyc
+
+######################
+# Migrations
+######################
+/dispatcher/migrations/**
+!/dispatcher/migrations/__init__.py

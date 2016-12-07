@@ -2,23 +2,43 @@
 
 The application processes sensor data to dispatch an appropriate user if something is wrong.
 
-## Running the Django application
+## Initial Setup
 
-First, run `npm install && bower install` to make sure all dependencies are included. Next, navigate into the "djangodispatcher" service. Once here, run `"./node_modules/.bin/webpack" -d`. This command will look inside the "index.js" and "webpack.config.js" files and compile the react code appropriately. This command should be run each time react code is edited. After that, run `python manage.py makemigrations dispatcher`. This prepares the database migrations for the dispatcher application based on the models. After the migrations have been prepared, run `python manage.py migrate`. These commands should be run each time a model is updated to create the necessary database table changes. Finally, run `python manage.py runserver`. The first time the server is started, navigate to `/initialize`. This endpoint creates sample data.
+There are two main parts to this application - the Analysis Service and the Dispatcher Service.
 
-Commands:
+### Dispatcher Setup
 
-`"./node_modules/.bin/webpack" -d`: compile JSX if UI was updated
+This part is written using [Django](https://www.djangoproject.com/), a python based web framework. This was written using python 2.7, so if your machine uses python 3, there is one line of code to change in the "delegate" method in `dispatcher/views.py`. Initial setup requires a few steps. Steps 3 and 4 may not be needed since `db.sqlite` is included. These can all be executed from the command line in the `djangodispatcher` folder:
 
-`python manage.py makemigrations dispatcher`: prepare model changes
+1. `npm install && bower install` - installs dependencies
+2. `"./node_modules/.bin/webpack" -d` - compiles the React JSX code based on configuration in "index.js" and "webpack.config.js"
+3. `python manage.py makemigrations dispatcher` - stages database changes
+4. `python manage.py migrate` - applies database changes
+5. `python manage.py runserver` - starts the server
 
-`python manage.py migrate`: update tables according to model changes
+If you want to clear out all data from the database, run 
+`python manage.py flush`.
 
-`python manage.py runserver`: start the python server
+Initializing data is done by starting the server and navigating to `/initialize`.
 
-`python manage.py flush`: clear all data in the existing tables
+### Analysis Setup
 
-Endpoints:
+Import the `Analysis` directory into IntelliJ. Navigate to this directory in the command line and execute two commands:
+
+1. `gradle wrapper` - generates gradlew for the project
+2. `./gradlew build && java -jar build/libs/gs-spring-boot-0.1.0.jar` - builds the project and runs the JAR file
+
+## Running the Applications
+
+Dispatcher: `python manage.py runserver`
+
+Analysis: `./gradlew build && java -jar build/libs/gs-spring-boot-0.1.0.jar`
+
+## Endpoints
+
+The Dispatcher service runs on port 8000, and the Analysis service runs on port 8080
+
+### Dispatcher
 
 `/`: the home screen (differs based on user type)
 
@@ -42,8 +62,6 @@ Endpoints:
 
 `/initialize`: creates sample set of data
 
-## Running the Spring Server
+### Analysis
 
-Import 'Analysis' as gradle project. This folder only contains src/ and build.gradle. If this does not work, create your own gradle project and then copy src into it and use the build.gradle provided here. To generate the gradle wrapper, run `gradle wrapper`.
-
-Run the command `./gradlew build && java -jar build/libs/gs-spring-boot-0.1.0.jar`
+`/{int}`: GET request to send sample data to Analysis Service
